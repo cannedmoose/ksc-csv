@@ -6,7 +6,7 @@
   </head>
   <body>
     <div>
-      Version 1.12
+      Version 1.13
     </div>
     <div>
       Shopify CSV
@@ -77,7 +77,7 @@
                 messages.push(`No DEAR entry for ${handle} - ${SKU}`);
                 setMessage(messages.join("<br>"));
                 continue;
-            }
+            }$.\d
 
             const dearCost = dearEntry[dCostIndex].replace(/\s/g, "").replace(/[^$.\d]/g, "0");
             if(dearCost == cost) continue;
