@@ -6,7 +6,7 @@
   </head>
   <body>
     <div>
-      Version 1.13
+      Version 1.2
     </div>
     <div>
       Shopify CSV
@@ -79,7 +79,10 @@
                 continue;
             }
 
-            const dearCost = dearEntry[dCostIndex].replace(/\s/g, "").replace(/[^$.\d]/g, "0");
+            const dearCostMatch = dearEntry[dCostIndex].match(/\$?(\d+\.\d\d)/);
+            if (!dearCostMatch || !dearCostMatch[1]) continue;
+            const dearCost = dearCostMatch[1];
+
             if(dearCost == cost) continue;
 
             result.push([handle, title, dearCost]);
