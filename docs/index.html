@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>KSC Shopify Tool</title>
+    <script src="papaparse.min.js"></script>
+  </head>
+  <body>
+    <div>
+      Shopify CSV
+      <input type="file" id="shopifycsv" autocomplete="off" />
+    </div>
+    <div>
+      DEAR CSV
+      <input type="file" id="dearcsv" autocomplete="off" />
+    </div>
+
+    <div id="download"></div>
+
+    <div id="message"></div>
+
+    <script>
+      let shopifyData = {};
+      let dearData = {};
+
+      function setMessage(m) {
+        const messageEl = document.getElementById("message");
+        messageEl.innerHTML = m;
+      }
+
+      const message = document.querySelector("message")
+
+      function maybeOutput() {
+        if(!(shopifyData && dearData && dearData.data && shopifyData.data)) {
+            setMessage("Upload both CSVs")
+            return;
+        }
+
+        const sd = shopifyData.data;
+        const dd = dearData.data;
+
+        const sHandleIndex = sd[0].findIndex((i) => i ==  "Handle");
+        const sTitleIndex = sd[0].findIndex((i) => i ==  "Title");
+        const sCostIndex = sd[0].findIndex((i) => i ==  "Cost per item");
+        const sSKUIndex = sd[0].findIndex((i) => i ==  "Variant SKU");
+        if (sHandleIndex < 0 || sTitleIndex < 0 || sCostIndex < 0 || sSKUIndex < 0) {
+            setMessage("Shopify CSV Bad Format")
+            return;
+        }
+
+        const dSKUIndex = dd[0].findIndex((i) => i ==  "ProductCode");
+        const dCostIndex = dd[0].findIndex((i) => i ==  "AverageCost");
+        if (dSKUIndex < 0 || dCostIndex < 0) {
+            setMessage("DEAR CSV Bad Format")
+            return;
+        }
+
+        const messages = ["Starting"];
+        setMessage(messages.join("<br>"));
+        const result = [
+            ["Handle", "Title", "Cost per item"]
+        ]
+
+        for (let i = 1; i < sd.length; i++) {
+            const entry = sd[i];
+            const handle = entry[sHandleIndex];
+            const title = entry[sTitleIndex];
+            const cost = entry[sCostIndex];
+            const SKU = entry[sSKUIndex];
+
+            if (!title) continue;
+
+            const dearEntry = dd.find(i => i[dSKUIndex] == SKU);
+            if (!dearEntry) {
+                messages.push(`No DEAR entry for ${handle} - ${SKU}`);
+                setMessage(messages.join("<br>"));
+                continue;
+            }
+
+            const dearCost = dearEntry[dCostIndex];
+            if(dearCost == cost) continue;
+
+            result.push([handle, title, dearCost]);
+        }
+
+        messages.push("Done");
+        setMessage(messages.join("<br>"));
+
+        const resultCSV = Papa.unparse(result);
+        const resultURI = 'data:text/csv;charset=utf-8;base64,' + btoa(resultCSV);
+
+        const downloadEl = document.getElementById("download");
+        downloadEl.innerHTML = `<a href="${resultURI}" Download="product_result.csv">Download</a>`;
+      }
+
+      function _init() {
+        const shopifyInput = document.getElementById("shopifycsv");
+        const dearInput = document.getElementById("dearcsv");
+
+        shopifyInput.addEventListener("change", function () {
+          if (this.files && this.files[0]) {
+            let myFile = this.files[0];
+            let reader = new FileReader();
+
+            reader.addEventListener("load", function (e) {
+              let csvdata = e.target.result;
+              shopifyData = Papa.parse(csvdata);
+              maybeOutput();
+            });
+
+            reader.readAsBinaryString(myFile);
+          }
+        });
+
+        dearInput.addEventListener("change", function () {
+          if (this.files && this.files[0]) {
+            let myFile = this.files[0];
+            let reader = new FileReader();
+
+            reader.addEventListener("load", function (e) {
+              let csvdata = e.target.result;
+              dearData = Papa.parse(csvdata);
+              maybeOutput();
+            });
+
+            reader.readAsBinaryString(myFile);
+          }
+        });
+      }
+
+      _init();
+    </script>
+  </body>
+</html>
