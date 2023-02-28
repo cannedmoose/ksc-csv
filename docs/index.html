@@ -6,7 +6,7 @@
   </head>
   <body>
     <div>
-      Version 1.1
+      Version 1.11
     </div>
     <div>
       Shopify CSV
@@ -70,7 +70,7 @@
             const cost = entry[sCostIndex];
             const SKU = entry[sSKUIndex];
 
-            if (!title) continue;
+            if (!title || !SKU) continue;
 
             const dearEntry = dd.find(i => i[dSKUIndex] == SKU);
             if (!dearEntry) {
