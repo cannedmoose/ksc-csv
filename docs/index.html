@@ -6,6 +6,9 @@
   </head>
   <body>
     <div>
+      Version 1.1
+    </div>
+    <div>
       Shopify CSV
       <input type="file" id="shopifycsv" autocomplete="off" />
     </div>
@@ -48,7 +51,7 @@
         }
 
         const dSKUIndex = dd[0].findIndex((i) => i ==  "ProductCode");
-        const dCostIndex = dd[0].findIndex((i) => i ==  "AverageCost");
+        const dCostIndex = dd[0].findIndex((i) => i ==  "AverageCostINC");
         if (dSKUIndex < 0 || dCostIndex < 0) {
             setMessage("DEAR CSV Bad Format")
             return;
@@ -76,7 +79,7 @@
                 continue;
             }
 
-            const dearCost = dearEntry[dCostIndex];
+            const dearCost = dearEntry[dCostIndex].replace(/[^$.\d]/g, "0");
             if(dearCost == cost) continue;
 
             result.push([handle, title, dearCost]);
