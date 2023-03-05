@@ -51,7 +51,7 @@
         }
 
         const dSKUIndex = dd[0].findIndex((i) => i ==  "ProductCode");
-        const dCostIndex = dd[0].findIndex((i) => i ==  "AverageCostINC");
+        const dCostIndex = dd[0].findIndex((i) => i ==  "AverageCost");
         if (dSKUIndex < 0 || dCostIndex < 0) {
             setMessage("DEAR CSV Bad Format")
             return;
